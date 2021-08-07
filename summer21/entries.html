@@ -5,9 +5,54 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
 
-        <title>Summer 2021 Entries</title>
+        <title>ServJam Summer 2021 Entries</title>
+
+        <script type="module">
+            import entries from './entries.js';
+
+            const { mods } = entries;
+            const { awards } = entries;
+
+            if (Object.keys(mods).length == 0) {
+                document.getElementById('entries-loading').innerHTML = 'There are no entries yet, come back when the event is over';
+            } else {
+                var cards = "";
+                for (const mod in mods) {
+                    cards += `<div class="card bg-secondary" style="width: 18rem;">
+                        <img src="./assets/${mod}.png" class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-title h3">
+                                <img class="img-fluid rounded" width="35rem" src="https://cdn.modrinth.com/data/${mods[mod].modrinthId}/icon.png">
+                                <b>Sodium</b>
+                            </p>
+                            <p id="${mod}" class="card-subtitle">
+                                by <a class="text-dark" href="https://github.com/${mods[mod]}" target="_blank">jellysquid</a>
+                            </p>
+                            <p id="${mod}-body" class="card-body">
+                                Loading..
+                            </p>
+                            <hr>
+                            <a href="https://www.github.com/${mods[mod].repo}"><img class="rounded" width="50rem" src="./assets/github-icon.png"></a>
+                            <a href="https://www.modrinth.com/mod/${mods[mod].modrinthId}"><img class="rounded" width="50rem" src="./assets/modrinth-icon.png"></a>
+                            <a href="https://www.curseforge.com/minecraft/mc-mods/${mods[mod].curseSlug}"><img class="rounded" width="50rem" src="./assets/curseforge-icon.png"></a>
+                        </div>
+                    </div>`;
+                }
+
+                document.getElementById('entries').innerHTML = cards;
+                document.getElementById('entries-loading').innerHTML = '';
+
+                for (const mod in mods) {
+                    fetch(`https://api.modrinth.com/api/v1/mod/${mods[mod].modrinthId}`)
+                        .then(res => res.json())
+                        .then(data => document.getElementById(`${mod}-body`).innerHTML = data.description)
+                        .catch(err => document.getElementById(`${mod}-body`).innerHTML = 'Could not load description');
+                }
+            }
+        </script>
     </head>
     <body class="bg-dark text-light text-opacity-75">
         <nav class="navbar navbar-expand-lg navbar-dark bg-success">
@@ -22,7 +67,7 @@
                             <a class="nav-link" href="/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#Awards">Awards</a>
+                            <a class="nav-link" href="./pack">Pack</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="https://discord.gg/GY5ArwQuN8" target="_blank">Discord</a>
@@ -34,6 +79,31 @@
                 </div>
             </div>
         </nav>
-        <p class="h1">Coming soon..</p>
+        <div class="container" style="margin-top: 1em;">
+            <div class="flex-row">
+                <div class="flex-column"></div>
+                <div class="flex-column">
+                    <p class="h1"><b>Entries</b></p>
+                    <p id="entries-loading">
+                        Loading..
+                    </p>
+                    <div id="entries">
+                        <!-- Mod submission cards will be generated here -->
+                    </div>
+                </div>
+                <div class="flex-column"></div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-column"></div>
+                <div id="awards" class="flex-column">
+                    <hr>
+                    <p class="h1"><b>Awards</b></p>
+                    <p id="awards-loading">
+                        Loading..
+                    </p>
+                </div>
+                <div class="flex-column"></div>
+            </div>
+        </div>
     </body>
 </html>
