@@ -16,41 +16,92 @@
             const { mods } = entries;
             const { awards } = entries;
 
+            for (const award in awards) {
+                var awardHTML = `<div id="${award}">
+                    <p class="h3"><b>${award}</b></p>
+                    <p><i>${awards[award].description}</i></p>`
+
+                awards[award].awardees.forEach(awardee => {
+                    awardHTML += `<a class="btn btn-success ${awardee}-award" href="#${awardee}-card"></a>
+                    `
+                });
+
+                awardHTML += `</div><hr>`
+
+                document.getElementById('awards').innerHTML += awardHTML;
+            }
+
             if (Object.keys(mods).length == 0) {
                 document.getElementById('entries-loading').innerHTML = 'There are no entries yet, come back when the event is over';
             } else {
-                var cards = "";
                 for (const mod in mods) {
-                    cards += `<div class="card bg-secondary" style="width: 18rem;">
-                        <img src="./assets/${mod}.png" class="card-img-top">
-                        <div class="card-body">
-                            <p class="card-title h3">
-                                <img class="img-fluid rounded" width="35rem" src="https://cdn.modrinth.com/data/${mods[mod].modrinthId}/icon.png">
-                                <b>Sodium</b>
-                            </p>
-                            <p id="${mod}" class="card-subtitle">
-                                by <a class="text-dark" href="https://github.com/${mods[mod]}" target="_blank">jellysquid</a>
-                            </p>
-                            <p id="${mod}-body" class="card-body">
-                                Loading..
-                            </p>
-                            <hr>
-                            <a href="https://www.github.com/${mods[mod].repo}"><img class="rounded" width="50rem" src="./assets/github-icon.png"></a>
-                            <a href="https://www.modrinth.com/mod/${mods[mod].modrinthId}"><img class="rounded" width="50rem" src="./assets/modrinth-icon.png"></a>
-                            <a href="https://www.curseforge.com/minecraft/mc-mods/${mods[mod].curseSlug}"><img class="rounded" width="50rem" src="./assets/curseforge-icon.png"></a>
+                    const card = `<div class="col">
+                        <div id="${mod}-card" class="card bg-secondary h-100" style="margin-top: 1em;">
+                            <img src="./assets/${mod}.png" class="card-img-top"">
+                            <div id="${mod}-body" class="card-body">
+                                <p class="card-title h3">
+                                    <img class="img-fluid rounded" width="35rem" src="https://cdn.modrinth.com/data/${mods[mod].modrinthId}/icon.png">
+                                    <b id="${mod}-title">${mod}</b>
+                                </p>
+                                <p id="${mod}-authors" class="card-subtitle">
+                                    by
+                                </p>
+                                <p id="${mod}-desc" class="card-body">
+                                    Loading..
+                                </p>
+                            </div>
+                            <div id="${mod}-footer" class="card-footer">
+
+                            </div>
                         </div>
                     </div>`;
+
+                    document.getElementById(`entries`).innerHTML += `${card}`;
                 }
 
-                document.getElementById('entries').innerHTML = cards;
-                document.getElementById('entries-loading').innerHTML = '';
+                document.getElementById('entries-loading').remove();
 
                 for (const mod in mods) {
                     fetch(`https://api.modrinth.com/api/v1/mod/${mods[mod].modrinthId}`)
                         .then(res => res.json())
-                        .then(data => document.getElementById(`${mod}-body`).innerHTML = data.description)
-                        .catch(err => document.getElementById(`${mod}-body`).innerHTML = 'Could not load description');
+                        .then(data => {
+                                document.getElementById(`${mod}-desc`).innerHTML = data.description;
+                                document.getElementById(`${mod}-title`).innerHTML = data.title;
+
+                                const awards = document.getElementsByClassName(`${mod}-award`);
+                                for (var i = 0; i < awards.length; i++) {
+                                    awards[i].innerHTML = data.title;
+                                }
+                            })
+                        .catch(err => document.getElementById(`${mod}-desc`).innerHTML = 'Could not load description');
+
+                    var authorCount = 1;
+                    for (const author in mods[mod].authors) {
+                        var name = `<a class="text-dark" href="https://github.com/${mods[mod].authors[author]}" target="_blank">${author}</a>`;
+
+                        if (authorCount < Object.keys(mods[mod].authors).length) {
+                            name += ', ';
+                        }
+
+                        document.getElementById(`${mod}-authors`).innerHTML += name;
+                        authorCount++;
+                    }
+
+                    if ('repo' in mods[mod]) {
+                        addButton(mod, `<a href="https://www.github.com/${mods[mod].repo}"><img class="rounded" width="50rem" src="./assets/github-icon.png"></a>`);
+                    }
+
+                    addButton(mod, `<a href="https://www.modrinth.com/mod/${mods[mod].modrinthId}"><img class="rounded" width="50rem" src="./assets/modrinth-icon.png"></a>`);
+
+                    if ('curseSlug' in mods[mod]) {
+                        addButton(mod, `<a href="https://www.curseforge.com/minecraft/mc-mods/${mods[mod].curseSlug}"><img class="rounded" width="50rem" src="./assets/curseforge-icon.png"></a>`);
+                    }
                 }
+            }
+
+            function addButton(mod, html) {
+                document.getElementById(`${mod}-footer`).innerHTML += `${html}
+                `;
             }
         </script>
     </head>
@@ -79,7 +130,19 @@
                 </div>
             </div>
         </nav>
-        <div class="container" style="margin-top: 1em;">
+        <div class="container" style="margin-top: 1em; margin-bottom: 1em;">
+            <div class="flex-row">
+                <div class="flex-column"></div>
+                <div class="flex-column">
+                    <p class="h1"><b>Awards</b></p>
+                    <i>Awards are given based on votes that take place on the ServJam Discord.</i>
+                    <hr>
+                    <div id="awards">
+                        <!-- Awards will be generated here -->
+                    </div>
+                </div>
+                <div class="flex-column"></div>
+            </div>
             <div class="flex-row">
                 <div class="flex-column"></div>
                 <div class="flex-column">
@@ -87,20 +150,9 @@
                     <p id="entries-loading">
                         Loading..
                     </p>
-                    <div id="entries">
-                        <!-- Mod submission cards will be generated here -->
+                    <div id="entries" class="row row-cols-1 row-cols-md-3 g-4">
+                        <!-- Mod submission cards will be generated in these columns -->
                     </div>
-                </div>
-                <div class="flex-column"></div>
-            </div>
-            <div class="flex-row">
-                <div class="flex-column"></div>
-                <div id="awards" class="flex-column">
-                    <hr>
-                    <p class="h1"><b>Awards</b></p>
-                    <p id="awards-loading">
-                        Loading..
-                    </p>
                 </div>
                 <div class="flex-column"></div>
             </div>
