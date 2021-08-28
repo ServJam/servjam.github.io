@@ -1,15 +1,39 @@
 export default
 {
   "mods": {
-  /*"example": {
-      "modrinthId": "AANobbMI",
-      "curseSlug": "sodium",
-      "repo": "jellysquid3/sodium-fabric",
+    "chest-games": {
+      "modrinthId": "i1pkAITB",
+      "repo": "ashisbored/chest-games",
       "authors": {
-        Display Name: GitHub Username
-        "jellysquid": "jellysquid3"
+        // Display Name: GitHub Username
+        "Ash": "ashisbored"
       }
-    }*/
+    },
+    
+    "set-bonuses": {
+      "modrinthId": "Sy3LySzS",
+      "repo": "CodedSakura/SetBonuses",
+      "authors": {
+        "CodedSakura": "CodedSakura"
+      }
+    },
+
+    "life-steal": {
+      "modrinthId": "zIiSSvfo",
+      "curseSlug": "lifesteal",
+      "repo": "BradBot1/LifeSteal",
+      "authors": {
+        "BradBot_1": "BradBot1"
+      }
+    },
+    
+    "tetris": {
+      "modrinthId": "oXqeo9Ro",
+      "repo": "TheEpicBlock/server-side-tetris",
+      "authors": {
+        "TheEpicBlock": "TheEpicBlock"
+      }
+    }
   },
 
   "awards": { /*
