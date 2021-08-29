@@ -33,6 +33,15 @@ export default
       "authors": {
         "TheEpicBlock": "TheEpicBlock"
       }
+    },
+    
+    "cart": {
+      "modrinthId": "GFWR9kLQ",
+      "repo": "Patbox/TaterCart",
+      "authors": {
+        "Patbox": "Patbox",
+        "6pak": "js6pak"
+      }
     }
   },
 
